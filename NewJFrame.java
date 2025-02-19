@@ -1,5 +1,8 @@
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
+import java.util.LinkedList;
+
+
 public class NewJFrame extends javax.swing.JFrame {
     DefaultTableModel model; 
     public NewJFrame() {
@@ -26,13 +29,15 @@ public class NewJFrame extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         UpLimit = new javax.swing.JTextPane();
+        Clear = new javax.swing.JButton();
+        Rec = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(153, 0, 102));
         setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         jPanel1.setBackground(new java.awt.Color(45, 50, 80));
-        jPanel1.setPreferredSize(new java.awt.Dimension(577, 385));
+        jPanel1.setPreferredSize(new java.awt.Dimension(577, 400));
 
         jTable1.setBackground(new java.awt.Color(103, 111, 157));
         jTable1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -111,51 +116,68 @@ public class NewJFrame extends javax.swing.JFrame {
         UpLimit.setBackground(new java.awt.Color(235, 235, 235));
         jScrollPane2.setViewportView(UpLimit);
 
+        Clear.setBackground(new java.awt.Color(249, 209, 122));
+        Clear.setText("очистить");
+        Clear.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        Clear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ClearActionPerformed(evt);
+            }
+        });
+
+        Rec.setBackground(new java.awt.Color(249, 209, 122));
+        Rec.setText("заполнить");
+        Rec.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        Rec.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RecActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                            .addGap(34, 34, 34)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addGap(21, 21, 21)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel2)
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addGap(42, 42, 42)
+                                            .addComponent(jLabel3)))
+                                    .addGap(23, 23, 23))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                    .addComponent(jLabel1)
+                                    .addGap(18, 18, 18)))
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(87, 87, 87)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(Delite, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(Result, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(Add, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(19, 19, 19)
-                                        .addComponent(jLabel2))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(61, 61, 61)
-                                        .addComponent(jLabel3)))
-                                .addGap(23, 23, 23))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(18, 18, 18)))
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(87, 87, 87)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(Delite, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
-                            .addComponent(Result, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(Add, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(32, 32, 32)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(48, Short.MAX_VALUE))
+                        .addGap(111, 111, 111)
+                        .addComponent(Clear, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(104, 104, 104)
+                        .addComponent(Rec, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(39, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(Add)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Delite, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Result))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -167,10 +189,20 @@ public class NewJFrame extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3))))
+                            .addComponent(jLabel3)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(Add)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Delite, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Result)))
                 .addGap(25, 25, 25)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(48, 48, 48))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Clear, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Rec, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(31, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -181,12 +213,77 @@ public class NewJFrame extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 6, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
+    public class InvalidValueException extends Exception {
+        public InvalidValueException(String message) {
+            super(message);
+        }
+    }
+    
+public class RecIntegral {
+    private LinkedList<String[]> list = new LinkedList<>();
 
+    public void RecTable(String DownL, String UpL, String Step, String Result) throws InvalidValueException {
+        double down = parseAndValidate(DownL);
+        double up = parseAndValidate(UpL);
+        double step = parseAndValidate(Step);
+
+        if (down >= up) {
+            throw new InvalidValueException("Нижний предел должен быть меньше верхнего.");
+        }
+
+        if (step <= 0) {
+            throw new InvalidValueException("Шаг должен быть положительным числом.");
+        }
+
+        list.add(new String[]{DownL, UpL, Step, Result});
+    }
+
+    public String[][] GetTable() {
+        String[][] records = new String[list.size()][4];
+        for (int i = 0; i < list.size(); i++) {
+            records[i] = list.get(i);
+        }
+        return records;
+    }
+
+    public void DelElemList(int NumberElem) {
+        list.remove(NumberElem);
+    }
+
+    public void ChangeValue(int NumberElem, String DownL, String UpL, String Step, String Result) throws InvalidValueException {
+        parseAndValidate(DownL);
+        parseAndValidate(UpL);
+        parseAndValidate(Step);
+        
+        list.set(NumberElem, new String[]{DownL, UpL, Step, Result});
+    }
+
+    public boolean hasRecords() {
+        return !list.isEmpty();
+    }
+
+    private double parseAndValidate(String value) throws InvalidValueException {
+        try {
+            double num = Double.parseDouble(value);
+            if (num < 0.000001 || num > 1000000) {
+                throw new InvalidValueException("Число должно быть в диапазоне от 0.000001 до 1000000.");
+            }
+            return num;
+        } catch (NumberFormatException e) {
+            throw new InvalidValueException("Введено некорректное число: " + value);
+        }
+    }
+}
+    
+    RecIntegral SaveTable = new RecIntegral();
     private void ResetField(){
         StepTxt.setText("");
         DownLimit.setText("");
@@ -194,6 +291,8 @@ public class NewJFrame extends javax.swing.JFrame {
     }
     private void DeliteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeliteActionPerformed
        if (jTable1.getSelectedRow() > -1){
+           int getRow = jTable1.getSelectedRow();
+           SaveTable.DelElemList(getRow);
            model.removeRow(jTable1.getSelectedRow());
        } else {
            JOptionPane.showMessageDialog(NewJFrame.this, "Выбери строку для удаления");
@@ -208,16 +307,26 @@ public class NewJFrame extends javax.swing.JFrame {
             double DownLimitD = Double.parseDouble(jTable1.getValueAt(getRow, 0).toString());
             double UpLimitD = Double.parseDouble(jTable1.getValueAt(getRow, 1).toString());
             double Square = 0;
-            if (StepD <= 0 || UpLimitD < 0 || DownLimitD < 0 || UpLimitD < DownLimitD  ) {
-                JOptionPane.showMessageDialog(NewJFrame.this, "Введены некорректные значения");
-                return; 
-            }
+//            if (StepD <= 0 || UpLimitD < 0 || DownLimitD < 0 || UpLimitD < DownLimitD  ) {
+//                JOptionPane.showMessageDialog(NewJFrame.this, "Введены некорректные значения");
+//                return; 
+//            }
             for (double i = DownLimitD; i < UpLimitD; i += StepD) {
 
                Square += i + StepD > UpLimitD ? (UpLimitD - i) * (Math.tan(i) + Math.tan(UpLimitD)) / 2 :  (StepD / 2) * (Math.tan(i) + Math.tan(i + StepD));
-                
+               
             }
-            jTable1.setValueAt(Square, getRow, 3);
+            String SquareStr = String.format("%.5f", Square);
+                try {
+                    SaveTable.ChangeValue(getRow, jTable1.getValueAt(getRow, 0).toString(), 
+                                          jTable1.getValueAt(getRow, 1).toString(), 
+                                          jTable1.getValueAt(getRow, 2).toString(), 
+                                          SquareStr);
+                    jTable1.setValueAt(Square, getRow, 3);
+                } catch (InvalidValueException e) {
+                    JOptionPane.showMessageDialog(NewJFrame.this, e.getMessage(), "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
+                }
+
         } else {
            JOptionPane.showMessageDialog(NewJFrame.this, "Выбери строку для вычисления");
         }
@@ -229,10 +338,33 @@ public class NewJFrame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(NewJFrame.this, "Введены некорректные значения");
             return; 
         }
-        model.addRow(new Object[]{ DownLimit.getText(), UpLimit.getText(),StepTxt.getText()});
         
-        ResetField();
+        try {
+            SaveTable.RecTable(DownLimit.getText(), UpLimit.getText(), StepTxt.getText(), "0");
+            model.addRow(new Object[]{DownLimit.getText(), UpLimit.getText(), StepTxt.getText(), 0});
+            ResetField();
+        } catch (InvalidValueException e) {
+            JOptionPane.showMessageDialog(NewJFrame.this, e.getMessage(), "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
+        }
     }//GEN-LAST:event_AddActionPerformed
+
+    private void ClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearActionPerformed
+           model = (DefaultTableModel) jTable1.getModel();
+           model.setRowCount(0);
+           jTable1.setModel(model);
+    }//GEN-LAST:event_ClearActionPerformed
+
+    private void RecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RecActionPerformed
+        if (SaveTable.hasRecords()){
+            String[][] GetTb = SaveTable.GetTable();
+            for ( int i = 0; i < GetTb.length;i++){
+                model.addRow(GetTb[i]);
+            }
+        } else {
+           JOptionPane.showMessageDialog(NewJFrame.this, "Список пуст");
+        }
+        
+    }//GEN-LAST:event_RecActionPerformed
 
     /**
      * @param args the command line arguments
@@ -249,8 +381,10 @@ public class NewJFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Add;
+    private javax.swing.JButton Clear;
     private javax.swing.JButton Delite;
     private javax.swing.JTextPane DownLimit;
+    private javax.swing.JButton Rec;
     private javax.swing.JButton Result;
     private javax.swing.JTextPane StepTxt;
     private javax.swing.JTextPane UpLimit;
