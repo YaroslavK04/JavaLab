@@ -1,16 +1,99 @@
+
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 import java.util.LinkedList;
+import java.io.*;
+import javax.swing.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.net.*;
 
 
-public class NewJFrame extends javax.swing.JFrame {
+
+public class JF4 extends javax.swing.JFrame {
     DefaultTableModel model; 
-    public NewJFrame() {
+    private List<Socket> ClientSocket = new ArrayList<>();
+    private int COUNT_CLIENT = 1;
+    public JF4() {
+        int port = 12345; 
+
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server start...");
+            for (int i = 0; i<COUNT_CLIENT; i++){
+                System.out.println("Wait" + (i+1) +" client...");
+                Socket newClient = serverSocket.accept();
+                ClientSocket.add(newClient);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         initComponents();
+        
         model = (DefaultTableModel) jTable1.getModel();
     }
 
     @SuppressWarnings("unchecked")
+    
+    public class InvalidValueException extends Exception {
+        public InvalidValueException(String message) {
+            super(message);
+        }
+    }
+     private void parseAndValidate(String DowbLimit,String UpLimit,String Step) throws InvalidValueException {
+       
+        try {
+            double down = Double.parseDouble(DowbLimit);
+            double up = Double.parseDouble(UpLimit);
+            double step = Double.parseDouble(Step);
+            if (down < 0.000001 || down > 1000000 || up < 0.000001 || up > 1000000 || step < 0.000001 || step > 1000000 ) {
+                ResetField();
+                throw new JF4.InvalidValueException("Число должно быть в диапазоне от 0.000001 до 1000000."); 
+            }
+            if ( down < 0 || up < 0 || step < 0){
+                ResetField();
+                throw new JF4.InvalidValueException("Введены неккоректные значения"); 
+            }
+            if (down >= up) {
+                throw new JF4.InvalidValueException("Нижний предел должен быть меньше верхнего.");
+            }   
+
+            if (step <= 0) {
+                throw new JF4.InvalidValueException("Шаг должен быть положительным числом.");
+            }
+            if(step>(up-down)){
+                throw new JF4.InvalidValueException("Шаг не должен превышать интервал интегрирования.");
+            }
+        } catch (NumberFormatException e) {
+            throw new JF4.InvalidValueException("Введено некорректное число" );
+        }
+    }
+    
+
+    private LinkedList<RecIntegral> SaveTable = new LinkedList<>();
+    public void saveToTextFile(File file) throws IOException {
+         
+        try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
+            for (RecIntegral row : SaveTable) {
+                writer.println(String.join(";", row.Ret()));
+            }
+        }
+    }
+
+
+    public void loadFromTextFile(File file) throws IOException {
+        SaveTable.clear();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] loadFile = line.split(";");
+                SaveTable.add(new RecIntegral(loadFile[0],loadFile[1],loadFile[2],loadFile[3]));
+
+            }
+        }
+    }
+
+
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -31,6 +114,12 @@ public class NewJFrame extends javax.swing.JFrame {
         UpLimit = new javax.swing.JTextPane();
         Clear = new javax.swing.JButton();
         Rec = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        SaveInFile = new javax.swing.JMenu();
+        SaveTxt = new javax.swing.JMenuItem();
+        LoadTxt = new javax.swing.JMenuItem();
+        SaveBin = new javax.swing.JMenuItem();
+        LoadBin = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(153, 0, 102));
@@ -205,6 +294,44 @@ public class NewJFrame extends javax.swing.JFrame {
                 .addContainerGap(31, Short.MAX_VALUE))
         );
 
+        SaveInFile.setText("File");
+
+        SaveTxt.setText("Сохранить txt");
+        SaveTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SaveTxtActionPerformed(evt);
+            }
+        });
+        SaveInFile.add(SaveTxt);
+
+        LoadTxt.setText("Загрузить txt");
+        LoadTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LoadTxtActionPerformed(evt);
+            }
+        });
+        SaveInFile.add(LoadTxt);
+
+        SaveBin.setText("Сохранить bin");
+        SaveBin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SaveBinActionPerformed(evt);
+            }
+        });
+        SaveInFile.add(SaveBin);
+
+        LoadBin.setText("Загрузить bin");
+        LoadBin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LoadBinActionPerformed(evt);
+            }
+        });
+        SaveInFile.add(LoadBin);
+
+        jMenuBar1.add(SaveInFile);
+
+        setJMenuBar(jMenuBar1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -215,75 +342,31 @@ public class NewJFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 6, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
-    public class InvalidValueException extends Exception {
-        public InvalidValueException(String message) {
-            super(message);
+
+
+    public void saveToBinaryFile(File file) throws IOException {
+        //jTable1.getCellEditor().stopCellEditing();
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file))) {
+            out.writeObject(SaveTable);
+        }
+    }
+
+    public void loadFromBinaryFile(File file) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
+            SaveTable = (LinkedList<RecIntegral>) in.readObject();
         }
     }
     
-public class RecIntegral {
-    private LinkedList<String[]> list = new LinkedList<>();
-
-    public void RecTable(String DownL, String UpL, String Step, String Result) throws InvalidValueException {
-        double down = parseAndValidate(DownL);
-        double up = parseAndValidate(UpL);
-        double step = parseAndValidate(Step);
-
-        if (down >= up) {
-            throw new InvalidValueException("Нижний предел должен быть меньше верхнего.");
-        }
-
-        if (step <= 0) {
-            throw new InvalidValueException("Шаг должен быть положительным числом.");
-        }
-
-        list.add(new String[]{DownL, UpL, Step, Result});
-    }
-
-    public String[][] GetTable() {
-        String[][] records = new String[list.size()][4];
-        for (int i = 0; i < list.size(); i++) {
-            records[i] = list.get(i);
-        }
-        return records;
-    }
-
-    public void DelElemList(int NumberElem) {
-        list.remove(NumberElem);
-    }
-
-    public void ChangeValue(int NumberElem, String DownL, String UpL, String Step, String Result) throws InvalidValueException {
-        parseAndValidate(DownL);
-        parseAndValidate(UpL);
-        parseAndValidate(Step);
-        
-        list.set(NumberElem, new String[]{DownL, UpL, Step, Result});
-    }
-
-    public boolean hasRecords() {
-        return !list.isEmpty();
-    }
-
-    private double parseAndValidate(String value) throws InvalidValueException {
-        try {
-            double num = Double.parseDouble(value);
-            if (num < 0.000001 || num > 1000000) {
-                throw new InvalidValueException("Число должно быть в диапазоне от 0.000001 до 1000000.");
-            }
-            return num;
-        } catch (NumberFormatException e) {
-            throw new InvalidValueException("Введено некорректное число: " + value);
+    private void updateTable() {
+        for ( RecIntegral count: SaveTable){
+            model.addRow(count.Ret());
         }
     }
-}
-    
-    RecIntegral SaveTable = new RecIntegral();
     private void ResetField(){
         StepTxt.setText("");
         DownLimit.setText("");
@@ -292,10 +375,10 @@ public class RecIntegral {
     private void DeliteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeliteActionPerformed
        if (jTable1.getSelectedRow() > -1){
            int getRow = jTable1.getSelectedRow();
-           SaveTable.DelElemList(getRow);
+           SaveTable.remove(getRow);
            model.removeRow(jTable1.getSelectedRow());
        } else {
-           JOptionPane.showMessageDialog(NewJFrame.this, "Выбери строку для удаления");
+           JOptionPane.showMessageDialog(JF4.this, "Выбери строку для удаления");
        }
     }//GEN-LAST:event_DeliteActionPerformed
 
@@ -303,49 +386,67 @@ public class RecIntegral {
         if (jTable1.getSelectedRow() > -1){
             
             int getRow = jTable1.getSelectedRow();
+            try {
+                parseAndValidate(jTable1.getValueAt(getRow, 0).toString(),jTable1.getValueAt(getRow, 1).toString(),jTable1.getValueAt(getRow, 2).toString());   
+            } catch (InvalidValueException e) {
+                JOptionPane.showMessageDialog(JF4.this, e.getMessage(), "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
+            }
             double StepD = Double.parseDouble(jTable1.getValueAt(getRow, 2).toString());
             double DownLimitD = Double.parseDouble(jTable1.getValueAt(getRow, 0).toString());
             double UpLimitD = Double.parseDouble(jTable1.getValueAt(getRow, 1).toString());
             double Square = 0;
-//            if (StepD <= 0 || UpLimitD < 0 || DownLimitD < 0 || UpLimitD < DownLimitD  ) {
-//                JOptionPane.showMessageDialog(NewJFrame.this, "Введены некорректные значения");
-//                return; 
-//            }
-            for (double i = DownLimitD; i < UpLimitD; i += StepD) {
-
-               Square += i + StepD > UpLimitD ? (UpLimitD - i) * (Math.tan(i) + Math.tan(UpLimitD)) / 2 :  (StepD / 2) * (Math.tan(i) + Math.tan(i + StepD));
-               
+            
+            double range = (UpLimitD - DownLimitD)/COUNT_CLIENT;
+            Message mess = new Message(0,0,StepD,false);
+            for (int i = 0; i < COUNT_CLIENT; i++)
+            {
+                try{
+                    ObjectOutputStream out = new ObjectOutputStream(ClientSocket.get(i).getOutputStream());
+                    mess.DownL = DownLimitD + i * range;
+                    mess.UpL = (i == COUNT_CLIENT - 1) ? UpLimitD : mess.DownL + range;
+                    out.writeObject(mess);
+                   
+                }catch(IOException e){
+                    JOptionPane.showMessageDialog(null, e.getMessage(), "Ошибка соединения", JOptionPane.WARNING_MESSAGE);
+                }  
             }
-            String SquareStr = String.format("%.5f", Square);
-                try {
-                    SaveTable.ChangeValue(getRow, jTable1.getValueAt(getRow, 0).toString(), 
-                                          jTable1.getValueAt(getRow, 1).toString(), 
-                                          jTable1.getValueAt(getRow, 2).toString(), 
-                                          SquareStr);
-                    jTable1.setValueAt(Square, getRow, 3);
-                } catch (InvalidValueException e) {
-                    JOptionPane.showMessageDialog(NewJFrame.this, e.getMessage(), "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
+            
+
+            for (Socket client : ClientSocket) {
+                try{
+                   DataInputStream in = new DataInputStream(client.getInputStream());
+                   
+                    Square += in.readDouble();
+
+                }catch(IOException e){
+                      JOptionPane.showMessageDialog(null, e.getMessage(), "Ошибка получения данных", JOptionPane.WARNING_MESSAGE);
                 }
+                
+            }
+            
+            SaveTable.set(getRow,new RecIntegral(jTable1.getValueAt(getRow, 0).toString(),jTable1.getValueAt(getRow, 1).toString(),jTable1.getValueAt(getRow, 2).toString(),String.format("%.5f", Square)));
+            jTable1.setValueAt(Square, getRow, 3);
 
         } else {
-           JOptionPane.showMessageDialog(NewJFrame.this, "Выбери строку для вычисления");
+           JOptionPane.showMessageDialog(JF4.this, "Выбери строку для вычисления");
         }
     }//GEN-LAST:event_ResultActionPerformed
 
     private void AddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddActionPerformed
             
         if (DownLimit.getText().isEmpty() || UpLimit.getText().isEmpty() || StepTxt.getText().isEmpty()  ) {
-            JOptionPane.showMessageDialog(NewJFrame.this, "Введены некорректные значения");
+            JOptionPane.showMessageDialog(JF4.this, "Введены некорректные значения");
             return; 
         }
-        
-        try {
-            SaveTable.RecTable(DownLimit.getText(), UpLimit.getText(), StepTxt.getText(), "0");
-            model.addRow(new Object[]{DownLimit.getText(), UpLimit.getText(), StepTxt.getText(), 0});
-            ResetField();
-        } catch (InvalidValueException e) {
-            JOptionPane.showMessageDialog(NewJFrame.this, e.getMessage(), "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
+        try{
+            parseAndValidate(DownLimit.getText(), UpLimit.getText(),StepTxt.getText());
+            SaveTable.add(new RecIntegral(DownLimit.getText(), UpLimit.getText(),StepTxt.getText(),"0"));
+            model.addRow(new Object[]{ DownLimit.getText(), UpLimit.getText(),StepTxt.getText(),0});
+
+        }catch (InvalidValueException e) {
+            JOptionPane.showMessageDialog(JF4.this, e.getMessage(), "Ошибка ввода", JOptionPane.WARNING_MESSAGE);
         }
+        ResetField();
     }//GEN-LAST:event_AddActionPerformed
 
     private void ClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearActionPerformed
@@ -355,28 +456,77 @@ public class RecIntegral {
     }//GEN-LAST:event_ClearActionPerformed
 
     private void RecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RecActionPerformed
-        if (SaveTable.hasRecords()){
-            String[][] GetTb = SaveTable.GetTable();
-            for ( int i = 0; i < GetTb.length;i++){
-                model.addRow(GetTb[i]);
+        if (!SaveTable.isEmpty()){
+            for ( RecIntegral count: SaveTable){
+                model.addRow(count.Ret());
             }
         } else {
-           JOptionPane.showMessageDialog(NewJFrame.this, "Список пуст");
-        }
-        
+           JOptionPane.showMessageDialog(JF4.this, "Список пуст");
+        }  
     }//GEN-LAST:event_RecActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    private void SaveTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveTxtActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showSaveDialog(JF4.this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try {
+                saveToTextFile(file);
+                JOptionPane.showMessageDialog(JF4.this, "Данные успешно сохранены!", "Успех", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(JF4.this, "Ошибка сохранения: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_SaveTxtActionPerformed
+
+    private void LoadTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadTxtActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showOpenDialog(JF4.this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try {
+                loadFromTextFile(file);
+                updateTable();
+                JOptionPane.showMessageDialog(JF4.this, "Данные успешно загружены!", "Успех", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(JF4.this, "Ошибка загрузки: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_LoadTxtActionPerformed
+
+    private void SaveBinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveBinActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+
+        if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();            
+            try {
+                saveToBinaryFile(file);
+                JOptionPane.showMessageDialog(null, "Данные успешно сохранены!", "Успех", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(null, "Ошибка сохранения: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_SaveBinActionPerformed
+
+    private void LoadBinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadBinActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showOpenDialog(JF4.this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try {
+                loadFromBinaryFile(file);
+                updateTable();
+                JOptionPane.showMessageDialog(JF4.this, "Данные успешно загружены!", "Успех", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException | ClassNotFoundException e) {
+                JOptionPane.showMessageDialog(JF4.this, "Ошибка загрузки: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_LoadBinActionPerformed
+
     public static void main(String args[]) {
-  
   
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new NewJFrame().setVisible(true);
+                new JF4().setVisible(true);
             }
-        });
+           });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -384,13 +534,19 @@ public class RecIntegral {
     private javax.swing.JButton Clear;
     private javax.swing.JButton Delite;
     private javax.swing.JTextPane DownLimit;
+    private javax.swing.JMenuItem LoadBin;
+    private javax.swing.JMenuItem LoadTxt;
     private javax.swing.JButton Rec;
     private javax.swing.JButton Result;
+    private javax.swing.JMenuItem SaveBin;
+    private javax.swing.JMenu SaveInFile;
+    private javax.swing.JMenuItem SaveTxt;
     private javax.swing.JTextPane StepTxt;
     private javax.swing.JTextPane UpLimit;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
