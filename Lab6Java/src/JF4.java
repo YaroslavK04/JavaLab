@@ -12,17 +12,18 @@ import java.net.*;
 
 public class JF4 extends javax.swing.JFrame {
     DefaultTableModel model; 
-    private List<Socket> ClientSocket = new ArrayList<>();
-    private int COUNT_CLIENT = 1;
+    private List<SaveSocket> ClientSocket = new ArrayList<>();
+    private int COUNT_CLIENT =4 ;
     public JF4() {
         int port = 12345; 
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server start...");
             for (int i = 0; i<COUNT_CLIENT; i++){
-                System.out.println("Wait" + (i+1) +" client...");
+                System.out.println("Wait " + (i+1) +" client...");
                 Socket newClient = serverSocket.accept();
-                ClientSocket.add(newClient);
+                ClientSocket.add(new SaveSocket(newClient));
+                System.out.println("Accept " + (i+1) +" client!");
             }
 
         } catch (IOException e) {
@@ -395,16 +396,17 @@ public class JF4 extends javax.swing.JFrame {
             double DownLimitD = Double.parseDouble(jTable1.getValueAt(getRow, 0).toString());
             double UpLimitD = Double.parseDouble(jTable1.getValueAt(getRow, 1).toString());
             double Square = 0;
-            
+            long start = System.nanoTime();
             double range = (UpLimitD - DownLimitD)/COUNT_CLIENT;
-            Message mess = new Message(0,0,StepD,false);
+            Message mess = new Message(DownLimitD,0,StepD,false);
             for (int i = 0; i < COUNT_CLIENT; i++)
             {
                 try{
-                    ObjectOutputStream out = new ObjectOutputStream(ClientSocket.get(i).getOutputStream());
-                    mess.DownL = DownLimitD + i * range;
-                    mess.UpL = (i == COUNT_CLIENT - 1) ? UpLimitD : mess.DownL + range;
-                    out.writeObject(mess);
+                                        
+                    mess.UpL = (i == COUNT_CLIENT - 1) ? UpLimitD : Math.floor((mess.DownL + range) / StepD) * StepD;
+                    ClientSocket.get(i).out.writeObject(mess);
+                    ClientSocket.get(i).out.flush();
+                    mess.DownL = mess.UpL;
                    
                 }catch(IOException e){
                     JOptionPane.showMessageDialog(null, e.getMessage(), "Ошибка соединения", JOptionPane.WARNING_MESSAGE);
@@ -412,17 +414,19 @@ public class JF4 extends javax.swing.JFrame {
             }
             
 
-            for (Socket client : ClientSocket) {
+            for (SaveSocket client : ClientSocket) {
                 try{
-                   DataInputStream in = new DataInputStream(client.getInputStream());
+                  
                    
-                    Square += in.readDouble();
+                    Square += client.in.readDouble();
 
                 }catch(IOException e){
                       JOptionPane.showMessageDialog(null, e.getMessage(), "Ошибка получения данных", JOptionPane.WARNING_MESSAGE);
                 }
                 
             }
+            long end = System.nanoTime() - start ;
+            System.out.println("Time work : " + end);
             
             SaveTable.set(getRow,new RecIntegral(jTable1.getValueAt(getRow, 0).toString(),jTable1.getValueAt(getRow, 1).toString(),jTable1.getValueAt(getRow, 2).toString(),String.format("%.5f", Square)));
             jTable1.setValueAt(Square, getRow, 3);
