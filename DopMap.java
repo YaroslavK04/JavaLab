@@ -1,11 +1,13 @@
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 
 
-public class NewJFrame extends javax.swing.JFrame {
+public class DopMap extends javax.swing.JFrame {
     DefaultTableModel model; 
-    public NewJFrame() {
+    public DopMap() {
         initComponents();
         model = (DefaultTableModel) jTable1.getModel();
     }
@@ -221,28 +223,37 @@ public class NewJFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     public class RecIntegral{
-        private LinkedList<String[]> list = new LinkedList<>();
+
+        private Map<List<String>, String> map = new HashMap<>();
 
         public void RecTable(String DownL, String UpL, String Step,String Result ){
-            list.add(new String[]{DownL,UpL,Step,Result});
+            map.put(List.of(DownL,UpL,Step), Result);
         }
         
         public String[][] GetTable() {
-            String[][] records = new String[list.size()][4];
-            for (int i = 0; i < list.size(); i++) {
-                records[i] = list.get(i);
+            String[][] records = new String[map.size()][4]; 
+            int i = 0;
+            for (Map.Entry<List<String>, String> entry : map.entrySet()) { 
+                List<String> GetKey = entry.getKey();
+                for (int count = 0; count <3; count++){
+                    records[i][count] = GetKey.get(count); 
+                }
+                records[i][3] = entry.getValue(); 
+                i++;
             }
             return records;
         }
-        public void DelElemList(int NumberElem){
-            list.remove(NumberElem);
+        public void DelElemList(String DownL, String UpL, String Step){
+            map.remove(List.of(DownL,UpL,Step));
         }
-        public void ChangeValue(int NumberElem,String DownL, String UpL, String Step,String Result ){
-            list.set(NumberElem, new String[]{DownL,UpL,Step,Result});
+        public boolean AvailabilityKey(String DownL, String UpL, String Step){
+            return map.containsKey(List.of(DownL,UpL,Step));
         }
+
         public boolean hasRecords() {
-            return !list.isEmpty();
+            return !map.isEmpty();
         }
+
     }
     
     RecIntegral SaveTable = new RecIntegral();
@@ -254,10 +265,10 @@ public class NewJFrame extends javax.swing.JFrame {
     private void DeliteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeliteActionPerformed
        if (jTable1.getSelectedRow() > -1){
            int getRow = jTable1.getSelectedRow();
-           SaveTable.DelElemList(getRow);
+           SaveTable.DelElemList(jTable1.getValueAt(getRow, 0).toString(),jTable1.getValueAt(getRow, 1).toString(),jTable1.getValueAt(getRow, 2).toString());
            model.removeRow(jTable1.getSelectedRow());
        } else {
-           JOptionPane.showMessageDialog(NewJFrame.this, "Выбери строку для удаления");
+           JOptionPane.showMessageDialog(DopMap.this, "Выбери строку для удаления");
        }
     }//GEN-LAST:event_DeliteActionPerformed
 
@@ -270,7 +281,7 @@ public class NewJFrame extends javax.swing.JFrame {
             double UpLimitD = Double.parseDouble(jTable1.getValueAt(getRow, 1).toString());
             double Square = 0;
             if (StepD <= 0 || UpLimitD < 0 || DownLimitD < 0 || UpLimitD < DownLimitD  ) {
-                JOptionPane.showMessageDialog(NewJFrame.this, "Введены некорректные значения");
+                JOptionPane.showMessageDialog(DopMap.this, "Введены некорректные значения");
                 return; 
             }
             for (double i = DownLimitD; i < UpLimitD; i += StepD) {
@@ -279,18 +290,24 @@ public class NewJFrame extends javax.swing.JFrame {
                
             }
             String SquareStr = String.format("%.5f", Square);
-            SaveTable.ChangeValue(getRow,jTable1.getValueAt(getRow, 0).toString(),jTable1.getValueAt(getRow, 1).toString(),jTable1.getValueAt(getRow, 2).toString(),SquareStr);
+            SaveTable.RecTable(jTable1.getValueAt(getRow, 0).toString(),jTable1.getValueAt(getRow, 1).toString(),jTable1.getValueAt(getRow, 2).toString(),SquareStr);
             jTable1.setValueAt(Square, getRow, 3);
 
         } else {
-           JOptionPane.showMessageDialog(NewJFrame.this, "Выбери строку для вычисления");
+           JOptionPane.showMessageDialog(DopMap.this, "Выбери строку для вычисления");
         }
     }//GEN-LAST:event_ResultActionPerformed
 
     private void AddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddActionPerformed
             
         if (DownLimit.getText().isEmpty() || UpLimit.getText().isEmpty() || StepTxt.getText().isEmpty()  ) {
-            JOptionPane.showMessageDialog(NewJFrame.this, "Введены некорректные значения");
+            JOptionPane.showMessageDialog(DopMap.this, "Введены некорректные значения");
+            ResetField();
+            return; 
+        }
+        if (SaveTable.AvailabilityKey(DownLimit.getText(), UpLimit.getText(), StepTxt.getText())) {
+            JOptionPane.showMessageDialog(DopMap.this, "Такие значения уже существуют");
+            ResetField();
             return; 
         }
         model.addRow(new Object[]{ DownLimit.getText(), UpLimit.getText(),StepTxt.getText(),0});
@@ -314,7 +331,7 @@ public class NewJFrame extends javax.swing.JFrame {
                 model.addRow(GetTb[i]);
             }
         } else {
-           JOptionPane.showMessageDialog(NewJFrame.this, "Список пуст");
+           JOptionPane.showMessageDialog(DopMap.this, "Список пуст");
         }
         
     }//GEN-LAST:event_RecActionPerformed
@@ -327,7 +344,7 @@ public class NewJFrame extends javax.swing.JFrame {
   
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new NewJFrame().setVisible(true);
+                new DopMap().setVisible(true);
             }
         });
     }
